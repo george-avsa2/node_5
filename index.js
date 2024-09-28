@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 
 const config = require("./config.json");
 const express = require("express");
+const generateBasicCRUD = require("./helpers/generateBasicCRUD");
 
 const db = require("./models")(Sequelize, config);
 
@@ -68,41 +69,14 @@ app.get("/api/turtles/pizza/:name", async ({ params: { name } }, res) => {
   res.json(turtle);
 });
 
-app.post("/api/turtles", async ({ body }, res) => {
-  const turtles = await db.turtles.create(body);
-  res.json(turtles);
-});
+const routers = {
+  pizzas: generateBasicCRUD(db.pizzas),
+  weapons: generateBasicCRUD(db.weapons),
+  colors: generateBasicCRUD(db.colors),
+};
 
-app.post("/api/weapons", async ({ body }, res) => {
-  const weapons = await db.weapons.create(body);
-  res.json(weapons);
-});
-
-app.post("/api/pizzas", async ({ body }, res) => {
-  const pizza = await db.pizzas.create(body);
-  res.json(pizza);
-});
-
-app.post("/api/colors", async ({ body }, res) => {
-  try {
-    const color = await db.colors.create(body);
-    res.json(color);
-  } catch (e) {
-    res.status(401).json({ message: e.message });
-  }
-});
-
-app.delete("/api/colors", async ({ body: { id } }, res) => {
-  try {
-    const color = await db.colors.destroy({
-      where: {
-        id,
-      },
-    });
-    res.json(color > 0);
-  } catch (e) {
-    res.status(401).json({ message: e.message });
-  }
+Object.entries(routers).forEach(([path, router]) => {
+  app.use(`/api/${path}`, router);
 });
 
 // force: true => сносит все данные
