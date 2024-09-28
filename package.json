@@ -1,0 +1,25 @@
+{
+  "name": "node_5",
+  "version": "1.0.0",
+  "description": "TMNT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/george-avsa2/node_5.git"
+  },
+  "author": "george.avsa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/george-avsa2/node_5/issues"
+  },
+  "homepage": "https://github.com/george-avsa2/node_5#readme",
+  "dependencies": {
+    "express": "^4.21.0",
+    "pg": "^8.13.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3"
+  }
+}
