@@ -1,9 +1,11 @@
 const Sequelize = require("sequelize");
-const { Op } = require("sequelize");
 
 const config = require("./config.json");
 const express = require("express");
 const generateBasicCRUD = require("./helpers/generateBasicCRUD");
+const getTurtleCRUD = require("./routes/turtles");
+const generatePizzaAdditional = require("./routes/pizzas");
+const generateWeaponAdditional = require("./routes/weapon");
 
 const db = require("./models")(Sequelize, config);
 
@@ -11,67 +13,10 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/api/turtles", async ({ query: { id } }, res) => {
-  const findConfig = {
-    include: [
-      {
-        model: db.weapons,
-        as: "weapon",
-      },
-      {
-        model: db.pizzas,
-        as: "firstFavoritePizza",
-      },
-      {
-        model: db.pizzas,
-        as: "secondFavoritePizza",
-      },
-      {
-        model: db.colors,
-        as: "color",
-      },
-    ],
-  };
-
-  if (id) {
-    findConfig.where = { id };
-  }
-
-  try {
-    const turtle = await db.turtles[!id ? "findAll" : "findOne"](findConfig);
-
-    res.json(turtle || {});
-  } catch (e) {
-    res.status(401).json({ message: e.message });
-  }
-});
-
-app.get("/api/turtles/pizza/:name", async ({ params: { name } }, res) => {
-  const pizza = await db.pizzas.findOne({
-    where: {
-      name,
-    },
-  });
-
-  if (!pizza) {
-    res.status(400).json({ message: `no pizza with name ${name}` });
-  }
-
-  const turtle = await db.turtles.findAll({
-    where: {
-      [Op.or]: [
-        { firstFavoritePizzaId: pizza.id },
-        { secondFavoritePizzaId: pizza.id },
-      ],
-    },
-  });
-
-  res.json(turtle);
-});
-
 const routers = {
-  pizzas: generateBasicCRUD(db.pizzas),
-  weapons: generateBasicCRUD(db.weapons),
+  turtles: getTurtleCRUD(db),
+  pizzas: generatePizzaAdditional(db, generateBasicCRUD(db.pizzas)),
+  weapons: generateWeaponAdditional(db, generateBasicCRUD(db.weapons)),
   colors: generateBasicCRUD(db.colors),
 };
 
