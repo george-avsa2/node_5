@@ -39,7 +39,7 @@ function getTurtleCRUD(db) {
     }
   });
 
-  router.get("/api/turtles/pizza/:name", async ({ params: { name } }, res) => {
+  router.get("/pizza/:name", async ({ params: { name } }, res) => {
     const pizza = await db.pizzas.findOne({
       where: {
         name,
@@ -60,6 +60,37 @@ function getTurtleCRUD(db) {
     });
 
     res.json(turtle);
+  });
+
+  router.post("/", async ({ body }, res) => {
+    try {
+      const item = await db.turtles.create(body);
+      res.json(item);
+    } catch (e) {
+      res.status(401).json({ message: e.message });
+    }
+  });
+
+  router.put("/", async ({ body, query: { id } }, res) => {
+    try {
+      const item = await db.turtles.update(body, { where: { id } });
+      res.json(item[0] > 0);
+    } catch (e) {
+      res.status(401).json({ message: e.message });
+    }
+  });
+
+  router.delete("/", async ({ query: { id } }, res) => {
+    try {
+      const item = await db.turtles.destroy({
+        where: {
+          id,
+        },
+      });
+      res.json(item > 0);
+    } catch (e) {
+      res.status(401).json({ message: e.message });
+    }
   });
 
   return router;
